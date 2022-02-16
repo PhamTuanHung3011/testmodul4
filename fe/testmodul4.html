@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bootstrap 4 Website Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+    <p>Danh sách thành phố</p>
+
+    <table class="table table-bordered table-hover">
+
+        <tr>
+            <th>#</th>
+            <th>Tên thành phố</th>
+            <th>Quốc gia</th>
+            <th colspan="2">Thao tác</th>
+        </tr>
+
+        <tbody id="tbody">
+
+        </tbody>
+    </table>
+</div>
+<!--modal create-->
+<div class="container">
+    <!-- Trigger the modal with a button -->
+    <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Create City</button>
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Creat City</h4>
+                </div>
+                <div class="modal-body">
+
+
+                    <div class="form-group">
+                        <label>Ten thanh pho:</label>
+                        <input type="text" class="form-control" id="nameCity">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dan so:</label>
+                        <input type="text" class="form-control" id="population">
+                    </div>
+
+                    <div class="form-group">
+                        <label>GDP:</label>
+                        <input type="text" class="form-control" id="GDP">
+                    </div>
+
+                    <div class="form-group">
+                        <label>description:</label>
+                        <input type="text" class="form-control" id="description">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Country:</label>
+                        <select id="idCountry">
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="create()" data-dismiss="modal">Save</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<div class="container">
+    <div class="modal fade" id="myModalEdit" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Edit City</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="idCityEdit" hidden>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ten thanh pho:</label>
+                        <input type="text" class="form-control" id="nameCityEdit">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Dan so:</label>
+                        <input type="text" class="form-control" id="populationEdit">
+                    </div>
+
+                    <div class="form-group">
+                        <label>GDP:</label>
+                        <input type="text" class="form-control" id="GDPEdit">
+                    </div>
+
+                    <div class="form-group">
+                        <label>description:</label>
+                        <input type="text" class="form-control" id="descriptionEdit">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Country:</label>
+                        <select id="idCountryEdit">
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="saveEdit()" data-dismiss="modal">Edit</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+
+
+</html>
+<script>
+    function show() {
+        let url = `http://localhost:8080/home/city`
+        $.ajax ({
+            type:"get",
+            url:url,
+            success: function (data) {
+                console.log(data)
+                let str = "";
+                for (let i = 0; i<data.length; i++) {
+                    str +="<tr>"
+                    str +=`<td>${i+1}</td>`
+                    str +=`<td><a href="showDetail.html?id=${data[i].idCity}"> ${data[i].nameCity}</a>`
+                    str +=`<td>${data[i].country.nameCountry}`
+                    str += `<td><button class="btn btn-primary" onclick="showEdit(${data[i].idCity})" data-toggle="modal" data-target="#myModalEdit">Edit</button></td>`
+                    str += `<td><button class="btn btn-primary" onclick="Delete(${data[i].idCity})" data-toggle="modal" data-target="#delete">Delete</button></td>`
+                    str +="</tr>"
+                }
+                document.getElementById("tbody").innerHTML = str;
+
+            },
+            error: function (err){
+                console.log(err)
+            }
+        })
+    }
+
+
+    function showCountry() {
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:8080/home/city/country",
+            success: function (data) {
+                let str = "";
+                for (let i = 0; i < data.length; i++) {
+                    str += `<option value="${data[i].idCountry}">${data[i].nameCountry}</option>`
+                }
+                document.getElementById("idCountry").innerHTML = str;
+                document.getElementById("idCountryEdit").innerHTML = str;
+                // document.getElementById("idRoleDelete").innerHTML = str;
+            },
+
+            error: function (err) {
+                console.log(err)
+            }
+        })
+    }
+
+    function create() {
+        let nameCity = document.getElementById("nameCity").value;
+        let population = document.getElementById("population").value;
+        let GDP = document.getElementById("GDP").value;
+        let description = document.getElementById("description").value;
+        let idCountry = document.getElementById("idCountry").value;
+
+        let City = {
+            nameCity : nameCity,
+            population: population,
+            GDP: GDP,
+            description: description,
+            country: {idCountry: idCountry}
+        }
+        $.ajax({
+            type: "POST",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            url: "http://localhost:8080/home/city/create",
+            data: JSON.stringify(City),
+            //xử lý khi thành công
+            success: function (data) {
+                show(0)
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        })
+    }
+
+    function showEdit(id) {
+        let url = `http://localhost:8080/home/city/${id}`;
+
+        $.ajax({
+            headers: {
+                'Accept': 'application/json'
+            },
+            type: "GET",
+            url: url,
+            //xử lý khi thành công
+            success: function (data) {
+                console.log('kiem tra data', data)
+                document.getElementById("idCityEdit").value= data.idCity;
+                document.getElementById("nameCityEdit").value= data.nameCity;
+                document.getElementById("populationEdit").value= data.population;
+                document.getElementById("GDPEdit").value= data.gdp;
+                document.getElementById("descriptionEdit").value= data.description;
+                document.getElementById("idCountryEdit").value= data.country.idCountry;
+
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        })
+    }
+
+    function saveEdit() {
+        let idCityEdit = document.getElementById("idCityEdit").value;
+        let url = `http://localhost:8080/home/city/edit`
+
+        console.log('lay dc GDP ko',document.getElementById("GDPEdit").value);
+        let city = {
+            idCity: idCityEdit,
+            nameCity: document.getElementById("nameCityEdit").value,
+            population: document.getElementById("populationEdit").value,
+            GDP: document.getElementById("GDPEdit").value,
+            description: document.getElementById("descriptionEdit").value,
+
+            country: {
+                idCountry:document.getElementById("idCountryEdit").value
+            }
+        }
+        console.log('co lay dc city ko',city);
+
+        $.ajax({
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify(city),
+            type: "PUT",
+            url: url ,
+            //xử lý khi thành công
+            success: function (data) {
+                console.log('co hien thi dc data ko',data)
+                alert("update thành công");
+                show(0);
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        })
+    }
+    function Delete(id) {
+        let url = `http://localhost:8080/home/city/delete/${id}`;
+        $.ajax ({
+            // headers: {
+            //         'Accept': 'application/json',
+            // },
+            type: "DELETE",
+            url: url,
+            success: function (data) {
+                alert("Delete thành công");
+                show(0)
+            },
+            error: function (err) {
+                console.log(err)
+            }
+        })
+    }
+
+
+    showCountry()
+    show()
+</script>
